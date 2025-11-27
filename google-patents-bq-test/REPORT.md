@@ -69,7 +69,49 @@ gcloud auth application-default login
 
 ---
 
-## 6. 향후 검토 사항
+## 6. API 사용법
+
+### 엔드포인트
+
+```
+GET /patents/search
+```
+
+### 파라미터
+
+| 파라미터 | 필수 | 설명 | 예시 |
+|----------|------|------|------|
+| `keyword` | O | 검색 키워드 (쉼표로 여러 개 가능) | `graphite,흑연,그래파이트` |
+| `limit` | X | 결과 수 제한 (기본값: 20, 최대: 100) | `10` |
+| `countries` | X | 국가 코드 (쉼표 구분) | `US,KR,JP,CN,EP` |
+
+### 쿼리 예시
+
+**1. 단일 키워드 (영어)**
+```
+/patents/search?keyword=graphite&limit=10&countries=US
+```
+
+**2. 다중 키워드 (영어 + 한국어) - 한국 특허 검색 시 필수**
+```
+/patents/search?keyword=graphite,흑연,그래파이트&limit=10&countries=KR
+```
+
+**3. 여러 국가 동시 검색**
+```
+/patents/search?keyword=battery,배터리,电池&limit=20&countries=US,KR,CN,JP
+```
+
+### 주의사항
+
+- **한국(KR) 특허 검색 시**: 반드시 한국어 키워드를 포함해야 합니다
+- **중국(CN) 특허 검색 시**: 중국어 간체 키워드를 포함해야 합니다
+- **일본(JP) 특허 검색 시**: 일본어 키워드를 포함해야 합니다
+- 키워드는 특허 제목(title)에서 검색됩니다
+
+---
+
+## 7. 향후 검토 사항
 
 - 실서비스 적용 시 AI 선택 기준: 응답 스타일 / 비용 / 속도
 - 특허 검색 쿼리 고도화 (출원인, 날짜 범위, CPC 코드 등)

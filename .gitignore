@@ -83,3 +83,5 @@ Thumbs.db
 *.log
 
 .claude/
+
+99_void/

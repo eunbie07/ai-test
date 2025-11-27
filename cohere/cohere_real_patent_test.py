@@ -112,40 +112,116 @@ def run_model(model_name: str, prompt: str, system_prompt: str = None) -> dict:
     return result
 
 
-def save_results(results: list, test_name: str) -> None:
-    """결과를 마크다운 파일로 저장"""
-    filename = f"real_patent_benchmark_{test_name}_{now_str}.md"
+def save_combined_results(
+    claim_results: list,
+    summary_results: list,
+    claim_info: dict,
+    abstract_info: dict,
+    patent_title: str
+) -> str:
+    """청구항 분석과 요약 분석 결과를 하나의 마크다운 파일로 저장"""
+    filename = f"real_patent_benchmark_{now_str}.md"
 
     with open(filename, "w", encoding="utf-8") as f:
-        f.write(f"# 실제 특허 데이터 벤치마크 결과 - {test_name}\n\n")
+        f.write(f"# 실제 특허 데이터 벤치마크 결과\n\n")
         f.write(f"**실행 시각**: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n")
+        f.write(f"**테스트 특허**: {patent_title[:50]}...\n\n")
         f.write("---\n\n")
 
-        # 요약 테이블
-        f.write("## 성능 요약\n\n")
+        # ==========================================
+        # 1. 테스트 1: 청구항 분석
+        # ==========================================
+        f.write("## 테스트 1: 청구항 분석\n\n")
+
+        # 테스트 데이터 정보
+        f.write("### 입력 데이터 정보\n\n")
+        f.write("| 항목 | 값 |\n")
+        f.write("|------|----|\n")
+        f.write(f"| 입력 텍스트 글자수 | {claim_info['char_count']:,}자 |\n")
+        f.write(f"| 추정 토큰수 (글자/3) | ~{claim_info['estimated_tokens']:,} 토큰 |\n")
+        f.write(f"| 컨텍스트 사용률 (128K 기준) | {claim_info['context_usage']:.2f}% |\n")
+        f.write("\n")
+
+        # 성능 요약 테이블
+        f.write("### 성능 요약\n\n")
         f.write("| 모델 | 응답시간 | 입력 토큰 | 출력 토큰 | 비용($) |\n")
         f.write("|------|----------|-----------|-----------|----------|\n")
-
-        for r in results:
+        for r in claim_results:
             if "error" in r:
                 f.write(f"| {r['model']} | ERROR | - | - | {r['error']} |\n")
             else:
                 f.write(f"| {r['model']} | {r['latency_sec']:.2f}s | {r['input_tokens']:,} | {r['output_tokens']:,} | ${r['cost']['total_cost']:.6f} |\n")
-
-        f.write("\n---\n\n")
+        f.write("\n")
 
         # 상세 결과
-        f.write("## 상세 결과\n\n")
-        for r in results:
-            f.write(f"### {r['model']}\n\n")
+        f.write("### 상세 응답\n\n")
+        for r in claim_results:
+            f.write(f"#### {r['model']}\n\n")
             if "error" in r:
-                f.write(f"**에러**: {r['error']}\n\n---\n\n")
+                f.write(f"**에러**: {r['error']}\n\n")
             else:
                 f.write(f"- **스펙**: Context {r['specs'].get('context', 'N/A')}, Max Output {r['specs'].get('max_output', 'N/A')}\n")
                 f.write(f"- **응답 시간**: {r['latency_sec']}초\n")
                 f.write(f"- **토큰**: 입력 {r['input_tokens']:,} / 출력 {r['output_tokens']:,}\n")
                 f.write(f"- **비용**: ${r['cost']['total_cost']:.6f}\n\n")
-                f.write(f"**응답:**\n\n{r['response']}\n\n---\n\n")
+                f.write(f"**응답:**\n\n{r['response']}\n\n")
+
+        f.write("---\n\n")
+
+        # ==========================================
+        # 2. 테스트 2: 요약 분석
+        # ==========================================
+        f.write("## 테스트 2: 요약 분석\n\n")
+
+        # 테스트 데이터 정보
+        f.write("### 입력 데이터 정보\n\n")
+        f.write("| 항목 | 값 |\n")
+        f.write("|------|----|\n")
+        f.write(f"| 입력 텍스트 글자수 | {abstract_info['char_count']:,}자 |\n")
+        f.write(f"| 추정 토큰수 (글자/3) | ~{abstract_info['estimated_tokens']:,} 토큰 |\n")
+        f.write(f"| 컨텍스트 사용률 (128K 기준) | {abstract_info['context_usage']:.2f}% |\n")
+        f.write("\n")
+
+        # 성능 요약 테이블
+        f.write("### 성능 요약\n\n")
+        f.write("| 모델 | 응답시간 | 입력 토큰 | 출력 토큰 | 비용($) |\n")
+        f.write("|------|----------|-----------|-----------|----------|\n")
+        for r in summary_results:
+            if "error" in r:
+                f.write(f"| {r['model']} | ERROR | - | - | {r['error']} |\n")
+            else:
+                f.write(f"| {r['model']} | {r['latency_sec']:.2f}s | {r['input_tokens']:,} | {r['output_tokens']:,} | ${r['cost']['total_cost']:.6f} |\n")
+        f.write("\n")
+
+        # 상세 결과
+        f.write("### 상세 응답\n\n")
+        for r in summary_results:
+            f.write(f"#### {r['model']}\n\n")
+            if "error" in r:
+                f.write(f"**에러**: {r['error']}\n\n")
+            else:
+                f.write(f"- **스펙**: Context {r['specs'].get('context', 'N/A')}, Max Output {r['specs'].get('max_output', 'N/A')}\n")
+                f.write(f"- **응답 시간**: {r['latency_sec']}초\n")
+                f.write(f"- **토큰**: 입력 {r['input_tokens']:,} / 출력 {r['output_tokens']:,}\n")
+                f.write(f"- **비용**: ${r['cost']['total_cost']:.6f}\n\n")
+                f.write(f"**응답:**\n\n{r['response']}\n\n")
+
+        f.write("---\n\n")
+
+        # ==========================================
+        # 3. 총 비용 요약
+        # ==========================================
+        f.write("## 총 비용 요약\n\n")
+        all_results = claim_results + summary_results
+        total_cost = sum(r.get("cost", {}).get("total_cost", 0) for r in all_results if "cost" in r)
+        total_input = sum(r.get("input_tokens", 0) for r in all_results if "input_tokens" in r)
+        total_output = sum(r.get("output_tokens", 0) for r in all_results if "output_tokens" in r)
+
+        f.write("| 항목 | 값 |\n")
+        f.write("|------|----|\n")
+        f.write(f"| 총 입력 토큰 | {total_input:,} |\n")
+        f.write(f"| 총 출력 토큰 | {total_output:,} |\n")
+        f.write(f"| **총 테스트 비용** | **${total_cost:.6f}** |\n")
 
     print(f"\n결과 저장 완료: {filename}")
     return filename
@@ -234,7 +310,17 @@ if __name__ == "__main__":
             print(f"[ERROR] {model}: {e}\n")
             results_claim.append({"model": model, "error": str(e)})
 
-    save_results(results_claim, "claim_analysis")
+    # 청구항 텍스트 정보 계산
+    claim_text = patent_data.get('claim', '')
+    claim_char_count = len(claim_text)
+    claim_estimated_tokens = claim_char_count // 3  # 한글 기준 대략 3자당 1토큰
+    claim_context_usage = (claim_estimated_tokens / 128000) * 100
+
+    claim_info = {
+        "char_count": claim_char_count,
+        "estimated_tokens": claim_estimated_tokens,
+        "context_usage": claim_context_usage,
+    }
 
     # ========================================
     # 테스트 2: 요약 분석
@@ -263,10 +349,31 @@ if __name__ == "__main__":
             print(f"[ERROR] {model}: {e}\n")
             results_summary.append({"model": model, "error": str(e)})
 
-    save_results(results_summary, "summary_analysis")
+    # 요약 텍스트 정보 계산
+    abstract_text = patent_data.get('abstract', '')
+    abstract_char_count = len(abstract_text)
+    abstract_estimated_tokens = abstract_char_count // 3
+    abstract_context_usage = (abstract_estimated_tokens / 128000) * 100
+
+    abstract_info = {
+        "char_count": abstract_char_count,
+        "estimated_tokens": abstract_estimated_tokens,
+        "context_usage": abstract_context_usage,
+    }
 
     # ========================================
-    # 최종 요약
+    # 결과 저장 (하나의 파일로 통합)
+    # ========================================
+    save_combined_results(
+        claim_results=results_claim,
+        summary_results=results_summary,
+        claim_info=claim_info,
+        abstract_info=abstract_info,
+        patent_title=patent_data.get('title', 'N/A')
+    )
+
+    # ========================================
+    # 최종 요약 출력
     # ========================================
     print("\n" + "=" * 70)
     print("최종 비용 요약")

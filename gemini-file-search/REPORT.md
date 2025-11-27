@@ -73,23 +73,25 @@ operation = client.file_search_stores.upload_to_file_search_store(
 os.unlink(tmp_path)
 ```
 
+**참고**: 공식 문서에는 파일 경로 업로드만 문서화되어 있으며, 본 방식은 테스트를 통해 검증한 워크어라운드임
+
 ---
 
 ### 3. 프롬프트에서 문서 참조 방식
 
 **결과: 모든 표현이 동일하게 작동**
 
-| 표현 | 결과 | 비고 |
-|------|------|------|
-| 문서 | 성공 | |
-| 파일 | 성공 | |
-| 자료 | 성공 | |
-| 업로드된 문서 | 성공 | |
-| 첨부된 파일 | 성공 | |
-| 제공된 자료 | 성공 | |
-| 참고 문서 | 성공 | |
+| 표현 | 결과 |
+|------|------|
+| 문서 | 성공 |
+| 파일 | 성공 |
+| 자료 | 성공 |
+| 업로드된 문서 | 성공 |
+| 첨부된 파일 | 성공 |
+| 제공된 자료 | 성공 |
+| 참고 문서 | 성공 |
 
-**결론**: File Search 도구가 자동으로 스토어에서 관련 내용을 검색하기 때문에, 프롬프트에서 **어떤 단어로 지칭해도 동일하게 동작**함. 심지어 문서를 명시적으로 언급하지 않아도 검색이 수행됨.
+**결론**: File Search 도구가 자동으로 스토어에서 관련 내용을 검색하기 때문에, 프롬프트에서 **어떤 단어로 지칭해도 동일하게 동작**함
 
 ---
 
@@ -104,16 +106,6 @@ grounding_metadata = response.candidates[0].grounding_metadata
 # 포함 정보
 - grounding_chunks: 검색된 문서 청크 (원본 텍스트, 파일명)
 - grounding_supports: 응답의 어느 부분이 어떤 청크에서 왔는지
-```
-
-예시 출력:
-```
-grounding_chunks=[GroundingChunk(
-  retrieved_context=GroundingChunkRetrievedContext(
-    text="# 프로젝트 기술 문서...",
-    title='project_docs.md'
-  )
-)]
 ```
 
 ---
@@ -162,137 +154,16 @@ response = client.models.generate_content(
 
 ---
 
-## 제한사항 및 참고사항
+## 제한사항
 
 | 항목 | 내용 |
 |------|------|
 | 최대 파일 크기 | 100MB |
 | 무료 저장소 용량 | 1GB |
-| 권장 스토어 크기 | 20GB 미만 |
-| 인덱싱 비용 | 토큰 100만 개당 $0.15 |
-| 보관/쿼리 비용 | 무료 (검색된 문서만 컨텍스트 토큰으로 청구) |
-| 지원 모델 | gemini-2.5-flash, gemini-2.5-pro, gemini-3-pro-preview 등 |
+| 파이썬 변수(bytes) | 최대 100MB (임시파일 방식이므로 동일 적용) |
 
 ---
 
-## API 레퍼런스 (공식 문서 기준)
-
-### 주요 API 엔드포인트
-
-### FileSearchStores API
-| 메서드 | 엔드포인트 | 설명 |
-|--------|-----------|------|
-| `uploadToFileSearchStore` | `POST /v1beta/{fileSearchStoreName}:uploadToFileSearchStore` | 파일을 스토어에 업로드 |
-| `fileSearchStores.create` | `POST /v1beta/fileSearchStores` | 빈 스토어 생성 |
-| `fileSearchStores.delete` | `DELETE /v1beta/{name}` | 스토어 삭제 |
-| `fileSearchStores.get` | `GET /v1beta/{name}` | 스토어 정보 조회 |
-| `fileSearchStores.list` | `GET /v1beta/fileSearchStores` | 스토어 목록 조회 |
-| `fileSearchStores.importFile` | `POST /v1beta/{fileSearchStoreName}:importFile` | 기존 파일 가져오기 |
-
-### Documents API (문서 관리)
-| 메서드 | 엔드포인트 | 설명 |
-|--------|-----------|------|
-| `documents.get` | `GET /v1beta/{name=fileSearchStores/*/documents/*}` | 문서 정보 조회 |
-| `documents.list` | `GET /v1beta/{parent=fileSearchStores/*}/documents` | 스토어 내 문서 목록 조회 |
-| `documents.delete` | `DELETE /v1beta/{name=fileSearchStores/*/documents/*}` | 문서 삭제 |
-
-### uploadToFileSearchStore 요청 본문
-
-| 필드 | 타입 | 필수 | 설명 |
-|------|------|------|------|
-| `displayName` | string | 선택 | 생성된 문서의 표시 이름 |
-| `customMetadata` | object[] | 선택 | 데이터와 연결할 맞춤 메타데이터 |
-| `chunkingConfig` | object | 선택 | 청크 구성 (미제공 시 기본값 사용) |
-| `mimeType` | string | 선택 | 데이터의 MIME 유형 (미제공 시 자동 추론) |
-
-### FileSearchStore 리소스 구조
-
-```json
-{
-  "name": "fileSearchStores/my-store-123abc",
-  "displayName": "My Document Store",
-  "createTime": "2025-11-27T10:00:00Z",
-  "updateTime": "2025-11-27T10:05:00Z",
-  "activeDocumentsCount": "5",
-  "pendingDocumentsCount": "0",
-  "failedDocumentsCount": "0",
-  "sizeBytes": "102400"
-}
-```
-
-### Document 리소스 구조
-
-```json
-{
-  "name": "fileSearchStores/my-store-123/documents/my-doc-abc",
-  "displayName": "프로젝트 기술문서",
-  "customMetadata": [
-    {"key": "author", "stringValue": "홍길동"},
-    {"key": "year", "numericValue": 2025}
-  ],
-  "createTime": "2025-11-27T10:00:00Z",
-  "updateTime": "2025-11-27T10:05:00Z",
-  "state": "STATE_ACTIVE",
-  "sizeBytes": "10240",
-  "mimeType": "text/plain"
-}
-```
-
-**Document 상태 (state):**
-| 상태 | 설명 |
-|------|------|
-| `STATE_PENDING` | 처리 중 (임베딩 및 벡터 저장) |
-| `STATE_ACTIVE` | 처리 완료, 검색 가능 |
-| `STATE_FAILED` | 처리 실패 |
-
-### customMetadata 활용
-
-파일에 메타데이터를 추가하여 나중에 필터링 검색이 가능:
-
-**업로드 시 메타데이터 추가:**
-```python
-operation = client.file_search_stores.upload_to_file_search_store(
-    file=file_path,
-    file_search_store_name=store_name,
-    config={
-        "display_name": "document.txt",
-        "custom_metadata": [
-            {"key": "author", "string_value": "홍길동"},
-            {"key": "department", "string_value": "연구소"},
-            {"key": "year", "numeric_value": 2025}
-        ]
-    }
-)
-```
-
-**메타데이터 필터링 검색:**
-```python
-response = client.models.generate_content(
-    model="gemini-2.5-flash",
-    contents="질문 내용",
-    config=types.GenerateContentConfig(
-        tools=[
-            types.Tool(
-                file_search=types.FileSearch(
-                    file_search_store_names=[store_name],
-                    metadata_filter="author=홍길동"  # 특정 작성자 문서만 검색
-                )
-            )
-        ]
-    )
-)
-```
-
-### 필터 문법 예시
-
-| 필터 | 설명 |
-|------|------|
-| `author=홍길동` | author가 "홍길동"인 문서 |
-| `year>2024` | year가 2024보다 큰 문서 |
-| `department=연구소 AND year=2025` | 복합 조건 |
-
-### 참고 링크
+## 참고 링크
 
 - [File Search 개요](https://ai.google.dev/gemini-api/docs/file-search?hl=ko)
-- [File Search Stores API 레퍼런스](https://ai.google.dev/api/rest/v1beta/fileSearchStores)
-- [Documents API 레퍼런스](https://ai.google.dev/api/rest/v1beta/fileSearchStores.documents)

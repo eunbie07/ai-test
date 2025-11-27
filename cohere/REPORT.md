@@ -242,12 +242,6 @@
 
 ---
 
-## 8. 향후 과제
-
-- [x] 실제 특허 데이터로 품질 비교 테스트 O 완료
-- [ ] 프롬프트 최적화 (모델별 최적 프롬프트 도출)
-- [ ] 에러 핸들링 및 재시도 로직 구현
-- [ ] 배치 처리 파이프라인 구축
 
 ---
 
@@ -258,10 +252,10 @@
 - 실제 특허 테스트: `cohere_real_patent_test.py`
 
 ### B. 테스트 결과 파일
-- `cohere_benchmark_20251127_111008.txt`
-- `real_patent_benchmark_claim_analysis_20251127_111612.txt`
-- `real_patent_benchmark_summary_analysis_20251127_111612.txt`
+- `cohere_benchmark_YYYYMMDD_HHMMSS.md` (샘플 벤치마크 결과)
+- `real_patent_benchmark_YYYYMMDD_HHMMSS.md` (실제 특허 테스트 결과 - 청구항+요약 통합)
 
 ### C. 참고 자료
 - Cohere 대시보드: https://dashboard.cohere.com/welcome/login
-- Cohere 공식 문서: https://docs.cohere.com
+- Cohere 공식 문서: https://docs.cohere.com/docs/models
+- Cohere price: https://cohere.com/pricing?_gl=1*5qwv2u*_gcl_au*MjAzOTMyNzgyNi4xNzY0MTQ4OTM5LjEyMzMyNzcxNjEuMTc2NDE0ODk0Ni4xNzY0MTUwMzIy*_ga*MTA4MDI3MzAzNC4xNzY0MTQ4OTM5*_ga_CRGS116RZS*czE3NjQyMDE1MDEkbzMkZzEkdDE3NjQyMDE2OTAkajQ2JGwwJGgw

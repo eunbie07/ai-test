@@ -39,14 +39,25 @@ def get_sample_patents(
 
 @app.get("/patents/search")
 def search_patents(
-    keyword: str = Query(..., min_length=1),
+    keyword: str = Query(..., min_length=1, description="검색 키워드 (쉼표 구분으로 여러 개 가능, 예: graphite,흑연)"),
     limit: int = Query(20, ge=1, le=100),
+    countries: str = Query(None, description="국가 코드 (쉼표 구분, 예: US,KR)"),
 ) -> List[Dict[str, Any]]:
     """
     키워드로 특허 제목 검색.
-    예: /patents/search?keyword=graphite&limit=5
+    예: /patents/search?keyword=graphite,흑연&limit=5&countries=US,KR
     """
     try:
-        return search_patents_by_keyword(keyword=keyword, limit=limit)
+        # 쉼표로 구분된 키워드를 리스트로 변환
+        keywords = [k.strip() for k in keyword.split(",") if k.strip()]
+
+        country_codes = None
+        if countries:
+            country_codes = [c.strip().upper() for c in countries.split(",")]
+        return search_patents_by_keyword(
+            keywords=keywords,
+            limit=limit,
+            country_codes=country_codes
+        )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
