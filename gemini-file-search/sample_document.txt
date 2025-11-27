@@ -1,0 +1,27 @@
+# 프로젝트 기술 문서
+
+## 1. 개요
+이 프로젝트는 AI 기반 특허 분석 시스템입니다.
+주요 기능으로는 특허 검색, 분석, 요약이 있습니다.
+
+## 2. 기술 스택
+- Python 3.11
+- FastAPI
+- Google BigQuery
+- OpenAI GPT-4
+- Gemini API
+
+## 3. 주요 기능
+- 키워드 기반 특허 검색
+- AI를 활용한 특허 요약
+- 기술 동향 분석
+
+## 4. 사용 방법
+1. API 키 설정
+2. 검색 키워드 입력
+3. 결과 확인 및 분석
+
+## 5. API 엔드포인트
+- GET /patents/search - 특허 검색
+- POST /patents/analyze - 특허 분석
+- GET /patents/{id} - 특허 상세 조회
