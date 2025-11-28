@@ -69,7 +69,7 @@ def ask_gpt_about_patents(question: str, patents: List[Dict[str, Any]]) -> str:
     )
 
     response = client.responses.create(
-        model="gpt-4.1-mini",  # 필요하면 gpt-4.1 등으로 변경
+        model="gpt-5.1",  # User requested gpt-5.1
         input=[
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_content},
@@ -108,7 +108,7 @@ def ask_gemini_about_patents(question: str, patents: List[Dict[str, Any]]) -> st
         "위 내용을 바탕으로, 핵심 내용을 한국어로 정리해줘."
     )
 
-    model = genai.GenerativeModel("gemini-2.0-flash")
+    model = genai.GenerativeModel("gemini-2.5-pro")
     response = model.generate_content(prompt)
 
     return response.text
@@ -144,7 +144,7 @@ def ask_claude_about_patents(question: str, patents: List[Dict[str, Any]]) -> st
     )
 
     response = client.messages.create(
-        model="claude-sonnet-4-20250514",
+        model="claude-sonnet-4-5-20250929",
         max_tokens=1024,
         system=system_prompt,
         messages=[
@@ -165,17 +165,17 @@ def format_patent_markdown(p: Dict[str, Any]) -> str:
     inventors = ", ".join([inv["name"] for inv in p.get("inventor", []) if inv.get("name")])
     cpc_codes = ", ".join(p.get("cpc", [])[:5])  # 최대 5개만
 
-    lines.append(f"| 공개번호 | {p.get('publication_number')} |")
-    lines.append(f"| 출원번호 | {p.get('application_number')} |")
-    lines.append(f"| 국가 | {p.get('country_code')} |")
-    lines.append(f"| 제목 | {title} |")
-    lines.append(f"| 공개일 | {p.get('publication_date')} |")
-    lines.append(f"| 출원일 | {p.get('filing_date')} |")
-    lines.append(f"| 출원인 | {assignees or 'N/A'} |")
-    lines.append(f"| 발명자 | {inventors or 'N/A'} |")
-    lines.append(f"| CPC분류 | {cpc_codes or 'N/A'} |")
+    lines.append(f"| publication_number | {p.get('publication_number')} |")
+    lines.append(f"| application_number | {p.get('application_number')} |")
+    lines.append(f"| country_code | {p.get('country_code')} |")
+    lines.append(f"| title | {title} |")
+    lines.append(f"| publication_date | {p.get('publication_date')} |")
+    lines.append(f"| filing_date | {p.get('filing_date')} |")
+    lines.append(f"| assignee | {assignees or 'N/A'} |")
+    lines.append(f"| inventor | {inventors or 'N/A'} |")
+    lines.append(f"| cpc | {cpc_codes or 'N/A'} |")
     if abstract:
-        lines.append(f"| 초록 | {abstract[:200]}... |")
+        lines.append(f"| abstract | {abstract[:200]}... |")
 
     return "\n".join(lines)
 
@@ -263,8 +263,8 @@ if __name__ == "__main__":
     for i, p in enumerate(patents, start=1):
         results.append(f"### [{i}] {p.get('publication_number')}")
         results.append("")
-        results.append("| 항목 | 내용 |")
-        results.append("|------|------|")
+        results.append("| Field | Value |")
+        results.append("|-------|-------|")
         results.append(format_patent_markdown(p))
         results.append("")
     results.append("---")

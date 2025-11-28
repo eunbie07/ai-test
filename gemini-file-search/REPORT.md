@@ -1,14 +1,75 @@
-# Gemini File Search API 테스트 보고서
+# Gemini File Search API 테스트 결과
 
-## 최종 결론
+## 결론
 
-| 테스트 항목  | 결과     | 비고                                                |
-| ------- | ------ | ------------------------------------------------- |
-| API 호출  | **가능** | `uploadToFileSearchStore` API를 통한 프로그래밍 방식 파일 업로드 |
-| 변수 전달   | **가능** | 임시 파일 생성 방식으로 파이썬 변수(bytes)를 통한 파일 전달             |
-| 프롬프트 표현 | **무관** | 문서/파일/자료 등 어떤 표현을 사용해도 File Search 도구가 자동으로 검색 수행 |
+- uploadToFileSearchStore API를 통해 파일 업로드 후 AI 호출이 정상 동작함
+  - 파일 경로 방식, bytes 변수 방식 모두 성공
+
+- 프롬프트에서 문서를 지칭하는 표현은 어떤 것을 사용해도 동일하게 동작함
+  - 테스트한 7가지 표현 모두 성공: "문서", "파일", "자료", "업로드된 문서", "첨부된 파일", "제공된 자료", "참고 문서"
 
 ---
+
+## 제한사항
+
+| 항목 | 내용 |
+|------|------|
+| 최대 파일 크기 | 100MB |
+
+### 지원 파일 형식 (주요)
+
+| 형식 | 확장자 |
+|------|--------|
+| PDF | .pdf |
+| Word | .docx, .doc |
+| Excel | .xlsx, .xls |
+| PowerPoint | .pptx |
+| 텍스트 | .txt |
+| CSV | .csv |
+| JSON | .json |
+| HTML | .html |
+| Markdown | .md |
+| 한글 | .hwp |
+
+- 전체 지원 형식은 [공식문서](https://ai.google.dev/gemini-api/docs/file-search?hl=ko) 참조
+
+### 저장소 크기 제한 (등급별)
+
+| 등급 | 한도 |
+|------|------|
+| 무료 | 1GB |
+| Tier 1 | 10GB |
+| Tier 2 | 100GB |
+| Tier 3 | 1TB |
+
+- 권장: 파일 검색 스토어당 20GB 미만 (검색 지연 시간 최적화)
+- 실제 저장 크기는 입력 데이터의 약 3배 (임베딩 포함)
+
+### 데이터 보존
+
+- Files API로 업로드된 원본 파일: **48시간 후 삭제**
+- 파일 검색 스토어에 가져온 데이터: **수동 삭제 전까지 무기한 저장**
+
+---
+
+## 비용
+
+| 항목 | 비용 |
+|------|------|
+| 색인 생성 (임베딩) | 토큰 1백만 개당 $0.15 |
+| 보관 | 무료 |
+| 쿼리 시 임베딩 | 무료 |
+| 검색된 문서 토큰 | 일반 컨텍스트 토큰으로 청구 |
+
+---
+
+## 참고 링크
+
+- [File Search 개요](https://ai.google.dev/gemini-api/docs/file-search?hl=ko)
+
+---
+
+# 상세 내용 
 
 ## 테스트 목적
 
@@ -24,7 +85,7 @@
 |------|------|
 | 모델 | gemini-2.5-flash |
 | SDK | google-genai |
-| 테스트 일자 | 2025-11-27 |
+| 테스트 일자 | 2025-11-28 |
 
 ---
 
@@ -34,24 +95,19 @@
 
 **결과: 성공**
 
+#### 방식 1: 파일 경로로 업로드 (공식문서 방식)
+
 ```python
 operation = client.file_search_stores.upload_to_file_search_store(
-    file=file_path,
+    file="sample_document.txt",
     file_search_store_name=store_name,
-    config={"display_name": filename, "mime_type": "text/plain"}
+    config={"display_name": "sample_document.txt"}
 )
 ```
 
-- 파일 검색 스토어 생성 후 파일 업로드 가능
-- 업로드는 비동기 작업으로, 완료까지 polling 필요 (약 5초 소요)
+#### 방식 2: bytes 변수로 업로드 (워크어라운드)
 
----
-
-### 2. 파이썬 변수를 통한 파일 전달
-
-**결과: 성공 (임시 파일 방식)**
-
-API가 bytes 직접 업로드를 지원하지 않아, 다음 방식으로 우회:
+API가 bytes 직접 업로드를 지원하지 않아, 임시 파일 생성 방식으로 우회:
 
 ```python
 # 1. 변수에 문서 내용 정의
@@ -73,11 +129,16 @@ operation = client.file_search_stores.upload_to_file_search_store(
 os.unlink(tmp_path)
 ```
 
-**참고**: 공식 문서에는 파일 경로 업로드만 문서화되어 있으며, 본 방식은 테스트를 통해 검증한 워크어라운드임
+- 공식 문서에는 파일 경로 업로드만 문서화되어 있으며, 본 방식은 테스트를 통해 검증한 워크어라운드임
+- 파일 크기 제한: 최대 100MB
+
+- 파일 검색 스토어 생성 후 파일 업로드 가능
+- 업로드는 비동기 작업으로, 완료까지 polling 필요 (약 5초 소요)
+- 두 방식 모두 동일한 스토어에 문서 추가 가능 (테스트에서 2개 문서 업로드 확인)
 
 ---
 
-### 3. 프롬프트에서 문서 참조 방식
+### 2. 프롬프트에서 문서 참조 방식
 
 **결과: 모든 표현이 동일하게 작동**
 
@@ -151,19 +212,3 @@ response = client.models.generate_content(
     )
 )
 ```
-
----
-
-## 제한사항
-
-| 항목 | 내용 |
-|------|------|
-| 최대 파일 크기 | 100MB |
-| 무료 저장소 용량 | 1GB |
-| 파이썬 변수(bytes) | 최대 100MB (임시파일 방식이므로 동일 적용) |
-
----
-
-## 참고 링크
-
-- [File Search 개요](https://ai.google.dev/gemini-api/docs/file-search?hl=ko)

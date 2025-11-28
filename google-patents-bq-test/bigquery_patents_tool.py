@@ -1,6 +1,6 @@
 # 파일명: bigquery_patents_tool.py
 
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional, Union
 from google.cloud import bigquery
 
 # gcloud init 에서 쓰는 프로젝트 ID
@@ -269,7 +269,9 @@ def search_patents_by_keyword(
       publication_date,
       filing_date,
       assignee,
+      assignee_harmonized,
       inventor,
+      inventor_harmonized,
       cpc
     FROM
       `bigquery-public-data.patents.publications`
@@ -316,8 +318,17 @@ def search_patents_by_keyword(
         abstract = _normalize_localized_text(row.abstract_localized)
         pub_date = _normalize_date(row.publication_date)
         filing = _normalize_date(row.filing_date)
-        assignees = _normalize_assignee(row.assignee)
-        inventors = _normalize_inventor(row.inventor)
+
+        # assignee_harmonized 우선, 없으면 assignee 사용
+        assignees = _normalize_assignee(row.assignee_harmonized)
+        if not assignees:
+            assignees = _normalize_assignee(row.assignee)
+
+        # inventor_harmonized 우선, 없으면 inventor 사용
+        inventors = _normalize_inventor(row.inventor_harmonized)
+        if not inventors:
+            inventors = _normalize_inventor(row.inventor)
+
         cpc_codes = _normalize_cpc(row.cpc)
 
         results.append({

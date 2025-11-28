@@ -113,7 +113,7 @@ def list_documents(client, store_name: str):
     - Documents API: documents.list
     """
     print(f"\n스토어 내 문서 목록 조회 중...")
-    documents = client.file_search_stores.list_documents(name=store_name)
+    documents = client.file_search_stores.documents.list(parent=store_name)
 
     doc_list = []
     for doc in documents:
@@ -135,7 +135,7 @@ def get_document(client, document_name: str):
     특정 문서 정보 조회
     - Documents API: documents.get
     """
-    doc = client.file_search_stores.get_document(name=document_name)
+    doc = client.file_search_stores.documents.get(name=document_name)
 
     doc_info = {
         "name": doc.name,
@@ -163,7 +163,7 @@ def delete_document(client, document_name: str, force: bool = False):
     - force=True: 관련 Chunk도 함께 삭제
     """
     print(f"문서 삭제 중: {document_name}")
-    client.file_search_stores.delete_document(name=document_name, force=force)
+    client.file_search_stores.documents.delete(name=document_name, config={"force": force})
     print(f"문서 삭제 완료")
 
 
@@ -199,7 +199,7 @@ def delete_store(client, store_name: str, force: bool = True):
     - force=True: 관련 문서도 함께 삭제
     """
     print(f"스토어 삭제 중: {store_name}")
-    client.file_search_stores.delete(name=store_name, force=force)
+    client.file_search_stores.delete(name=store_name, config={"force": force})
     print(f"스토어 삭제 완료")
 
 
@@ -393,7 +393,14 @@ def main():
     store = create_file_search_store(client, "test-doc-store")
     store_name = store.name
 
-    # 3. 테스트용 문서 내용 (파이썬 변수로 정의)
+    # 3. 방식 1: 파일 경로로 업로드 (공식문서 방식)
+    print("\n[방식 1] 파일 경로로 업로드: sample_document.txt")
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    sample_file_path = os.path.join(script_dir, "sample_document.txt")
+    upload_file_to_store(client, store_name, sample_file_path)
+
+    # 4. 방식 2: 바이트 데이터로 업로드 (파이썬 변수 활용)
+    print("\n[방식 2] 바이트 변수로 업로드: project_docs.md")
     test_document_content = """
     # 프로젝트 기술 문서
 
@@ -419,8 +426,6 @@ def main():
     3. 결과 확인 및 분석
     """.encode('utf-8')
 
-    # 4. 바이트 데이터로 파일 업로드 (파이썬 변수 활용)
-    print("\n테스트 문서 업로드 중...")
     upload_bytes_to_store(
         client,
         store_name,
@@ -442,7 +447,8 @@ def main():
         print(f"정보 조회 실패 (API 미지원 가능): {e}")
 
     # 6. 다양한 문서 참조 방식 테스트
-    test_query = "이 프로젝트의 주요 기술 스택은 무엇인가요?"
+    # 두 문서 모두에서 정보를 가져올 수 있는 쿼리
+    test_query = "ABC 회사는 언제 설립됐고, 프로젝트의 기술 스택은 무엇인가요?"
 
     print("\n" + "=" * 60)
     print("문서 참조 방식별 테스트 시작")
