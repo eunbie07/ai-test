@@ -29,9 +29,10 @@
 
 ---
 
-## Sources
+## 부록
 
-- [Anthropic Batch Processing 문서](https://docs.anthropic.com/en/docs/build-with-claude/batch-processing)
-- [OpenAI Batch API 문서](https://platform.openai.com/docs/guides/batch)
+### A. 참고 자료
+- [Anthropic Batch Processing 공식 문서](https://docs.anthropic.com/en/docs/build-with-claude/batch-processing)
+- [OpenAI Batch API 공식 문서](https://platform.openai.com/docs/guides/batch)
 
 *마지막 확인: 2025년 11월 28일*

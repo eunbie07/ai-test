@@ -212,3 +212,17 @@ response = client.models.generate_content(
     )
 )
 ```
+
+---
+
+## 부록
+
+### A. 테스트 코드 위치
+- 메인 테스트: `gemini_file_search_test.py`
+
+### B. 테스트 결과 파일
+- `test_result_YYYYMMDD_HHMMSS.md` (테스트 실행 결과 - 자동 생성)
+
+### C. 참고 자료
+- [Gemini File Search 개요](https://ai.google.dev/gemini-api/docs/file-search?hl=ko)
+- [Gemini API 가격 정책](https://ai.google.dev/pricing?hl=ko)

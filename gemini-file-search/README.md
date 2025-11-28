@@ -1,9 +1,12 @@
 # Gemini File Search API 테스트
 
-## 목적
-- `uploadToFileSearchStore` API를 활용한 AI 호출 테스트
-- 파이썬 변수를 통한 파일 전달 (UI 없이)
-- 프롬프트에서 문서 참조 방식 테스트
+## 목적 및 결론
+
+- uploadToFileSearchStore API를 통해 파일 업로드 후 AI 호출이 정상 동작함
+  - 파일 경로 방식, bytes 변수 방식 모두 성공
+
+- 프롬프트에서 문서를 지칭하는 표현은 어떤 것을 사용해도 동일하게 동작함
+  - 테스트한 7가지 표현 모두 성공: "문서", "파일", "자료", "업로드된 문서", "첨부된 파일", "제공된 자료", "참고 문서"
 
 ## 사전 준비
 
@@ -45,5 +48,7 @@ gemini-file-search/
 ├── gemini_file_search_test.py  # 메인 테스트 코드
 ├── sample_document.txt         # 테스트용 샘플 문서
 ├── requirements.txt            # 의존성
-└── README.md                   # 이 파일
+├── README.md                   # 이 파일
+├── REPORT.md                   # 테스트 결과 보고서
+└── test_result_*.md            # 테스트 실행 결과 (자동 생성)
 ```

@@ -168,8 +168,17 @@ WHERE
 
 ---
 
-## 참고자료
+## 부록
 
+### A. 테스트 코드 위치
+- BigQuery 특허 검색 모듈: `bigquery_patents_tool.py`
+- FastAPI 프록시 서버: `app/main.py`
+- AI 연동 데모: `ai_tool_demo.py`
+
+### B. 테스트 결과 파일
+- `test_result_YYYYMMDD_HHMMSS.md` (테스트 실행 결과 - 자동 생성)
+
+### C. 참고 자료
 - [BigQuery 공개 데이터셋 - patents](https://console.cloud.google.com/marketplace/product/google_patents_public_datasets/google-patents-public-data)
 - [BigQuery 가격 정책](https://cloud.google.com/bigquery/pricing)
 - [KIPRIS (한국특허정보검색서비스)](https://www.kipris.or.kr/khome/main.do)

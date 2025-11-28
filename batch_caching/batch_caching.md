@@ -117,8 +117,9 @@ OpenAI의 Batch API는 Automatic Caching과 호환되지 않습니다.
 
 ---
 
-## Sources
+## 부록
 
+### A. 참고 자료
 - [Anthropic Prompt Caching 공식 문서](https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching)
 - [Anthropic Batch API 공식 문서](https://docs.anthropic.com/en/docs/build-with-claude/batch-processing)
 - [OpenAI Prompt Caching 공식 문서](https://platform.openai.com/docs/guides/prompt-caching)

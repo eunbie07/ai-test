@@ -6,25 +6,23 @@
 
 ```
 cohere/
-├── README.md                    # 이 파일
-├── REPORT.md                    # 최종 검토 보고서
-├── cohere_test.py               # 기본 테스트 코드 (원본)
-├── cohere_test_v2.py            # 개선된 벤치마크 코드
-├── cohere_real_patent_test.py   # 실제 특허 데이터 테스트
-└── 프롬프트 연계 특허 데이터 샘플.txt  # 테스트용 특허 데이터
+├── README.md                                  # 이 파일
+├── REPORT.md                                  # 최종 검토 보고서
+├── requirements.txt                           # 의존성 패키지 목록
+├── cohere_real_patent_test.py                 # 실제 특허 데이터 테스트
+├── real_patent_benchmark_20251127_174514.md   # 벤치마크 결과
+└── 프롬프트 연계 특허 데이터 샘플.txt              # 테스트용 특허 데이터
 ```
 
 ## 실행 방법
 
 ### 환경 설정
 ```bash
+# 의존성 설치
+pip install -r requirements.txt
+
 # API 키 설정
 export CO_API_KEY="your-api-key"
-```
-
-### 샘플 벤치마크 실행
-```bash
-python cohere_test_v2.py
 ```
 
 ### 실제 특허 데이터 테스트

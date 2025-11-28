@@ -250,14 +250,12 @@
 ## 부록
 
 ### A. 테스트 코드 위치
-- 샘플 벤치마크: `cohere_test_v2.py`
 - 실제 특허 테스트: `cohere_real_patent_test.py`
 
 ### B. 테스트 결과 파일
-- `cohere_benchmark_YYYYMMDD_HHMMSS.md` (샘플 벤치마크 결과)
 - `real_patent_benchmark_YYYYMMDD_HHMMSS.md` (실제 특허 테스트 결과 - 청구항+요약 통합)
 
 ### C. 참고 자료
-- Cohere 대시보드: https://dashboard.cohere.com/welcome/login
-- Cohere 공식 문서: https://docs.cohere.com/docs/models
-- Cohere price: https://cohere.com/pricing?_gl=1*5qwv2u*_gcl_au*MjAzOTMyNzgyNi4xNzY0MTQ4OTM5LjEyMzMyNzcxNjEuMTc2NDE0ODk0Ni4xNzY0MTUwMzIy*_ga*MTA4MDI3MzAzNC4xNzY0MTQ4OTM5*_ga_CRGS116RZS*czE3NjQyMDE1MDEkbzMkZzEkdDE3NjQyMDE2OTAkajQ2JGwwJGgw
+- [Cohere 대시보드](https://dashboard.cohere.com/welcome/login)
+- [Cohere 공식 문서](https://docs.cohere.com/docs/models)
+- [Cohere 가격 정책](https://cohere.com/pricing)
